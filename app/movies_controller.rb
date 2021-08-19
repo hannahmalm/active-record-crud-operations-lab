@@ -6,9 +6,9 @@
 # end                              # end
 
 def can_be_instantiated_and_then_saved
-  movie = __
+  movie = Movie.new
   movie.title = "This is a title."
-  __
+  movie.save
 end
 
 def can_be_created_with_a_hash_of_attributes
@@ -20,33 +20,41 @@ def can_be_created_with_a_hash_of_attributes
       lead: "Paul Newman",
       in_theaters: false
   }
-  movie = __
+  movie = Movie.new(attributes)
+  #in order to actually create something, it needs to be saved
+  movie.save 
+  movie 
 end
 
-def can_be_created_in_a_block(args = __)
+def can_be_created_in_a_block(args = {title: "Home Alone", release_date: 1990})
   # If no arguments are passed, use default values:
-  # title == "Home Alone"
-  # release_date == 1990
-  
+  # title == "Home Alone" as the default
+  # release_date == 1990 as the default
+  #when passing in a block use {}
+  #in the create, use the args[:symbol] to create - this will run through a loop/block
+  #part of creating a method is initializing it and saving it all at once
   Movie.create do |m|
-    __
+    m.title = args[:title]
+    m.release_date = args[:release_date]
+    m.save
   end
 end
 
 def can_get_the_first_item_in_the_database
-  __
+  Movie.first
 end
 
 def can_get_the_last_item_in_the_database
-  __
+  Movie.last
 end
 
 def can_get_size_of_the_database
-  __
+  Movie.count
 end
 
 def can_find_the_first_item_from_the_database_using_id
-  __
+  Movie.find_by(id:1)
+  #id is 1 because it is the first id
 end
 
 def can_find_by_multiple_attributes
@@ -54,47 +62,58 @@ def can_find_by_multiple_attributes
   # title == "Title"
   # release_date == 2000
   # director == "Me"
-  __
+  Movie.find_by(title: "Title", release_date: 2000, director: "Me")
+  #pass these in symbol: value
 end
 
 def can_find_using_where_clause_and_be_sorted
   # For this test return all movies released after 2002 and ordered by 
   # release date descending
-  __
+  Movie.where("release_date > 2002").order(release_date: :desc)
+  #these just add on to each other, it reads like how it sounds
 end
 
 def can_be_found_updated_and_saved
   # Updtate the title "Awesome Flick" to "Even Awesomer Flick", save it, then return it
-  Movie.create(title: "Awesome Flick")
-  __
-  __
-  __
+  movie = Movie.create(title: "Awesome Flick")
+  #the first step to updating something is to find it
+  movie = Movie.find_by(title: "Awesome Flick")
+  movie.update(title: "Even Awesomer Flick")
+  movie.save
+  #add movie = to the front to make it easier to write the update and save 
 end
 
 def can_update_using_update_method
   # Update movie title to "Wat, huh?"
-  Movie.create(title: "Wat?")
-  __
-  __
+  movie = Movie.create(title: "Wat?")
+  #after creating something, FIND IT, THEN update it
+  movie = Movie.find_by(title: "Wat")
+  Movie.update(title: "Wat, huh?")
 end
 
 def can_update_multiple_items_at_once
   # Change title of all movies to "A Movie"
+  #change this 5 times by iterating over it, adding the title of the movie to be different and the release date to iterate by 1
+  #after creating the movie, iterate through all movies, and update the title
   5.times do |i|
     Movie.create(title: "Movie_#{i}", release_date: 2000+i)
   end
-  __
+  Movie.all.each{|movie|
+  movie.update(title: "A Movie")}
 end
 
 def can_destroy_a_single_item
   Movie.create(title: "That One Where the Guy Kicks Another Guy Once")
-  __
-  __
+  #in order to detlete an item, you have to find it first
+  movie = Movie.find_by(title: "That One Where the Guy Kicks Another Guy Once")
+  #then delete it
+  movie.delete
 end
 
 def can_destroy_all_items_at_once
   10.times do |i|
     Movie.create(title: "Movie_#{i}")
   end
-  __
+  Movie.delete_all 
+  #delete_all is a built in thing with AR
 end
